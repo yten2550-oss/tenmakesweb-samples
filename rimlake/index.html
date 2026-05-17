@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ริมเลค Rimlake — ครัวไทย & อิตาเลียน ริมทะเลสาบ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=Noto+Serif+Thai:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --water-deep:#08191d;
+    --water:#0e333b;
+    --teal:#1c5b66;
+    --gold:#e9b04c;
+    --gold-soft:#f4d58d;
+    --peach:#ee9a63;
+    --sky:#f4b483;
+    --cream:#f7efe0;
+    --cream-dim:#cdbfa6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:var(--water-deep);color:var(--cream);}
+  body{
+    font-family:'IBM Plex Sans Thai',sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--water-deep);}
+
+  /* ---------- ambient scene ---------- */
+  .scene{position:fixed;inset:0;z-index:0;overflow:hidden;}
+  .sky{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 80% at 50% 18%, rgba(244,180,131,.95) 0%, rgba(238,154,99,.7) 22%, rgba(28,91,102,.55) 52%, rgba(8,25,29,1) 78%),
+      linear-gradient(180deg,#f4b483 0%,#c97a55 30%,#1c5b66 60%,#08191d 100%);
+  }
+  .sun{
+    position:absolute;left:50%;top:20%;
+    width:340px;height:340px;margin:-170px 0 0 -170px;
+    border-radius:50%;
+    background:radial-gradient(circle,#fff4dc 0%,#f4d58d 30%,rgba(233,176,76,.5) 55%,rgba(233,176,76,0) 72%);
+    filter:blur(2px);
+    animation:sunPulse 7s ease-in-out infinite;
+  }
+  @keyframes sunPulse{0%,100%{transform:scale(1);opacity:.92;}50%{transform:scale(1.08);opacity:1;}}
+  .haze{
+    position:absolute;left:0;right:0;top:34%;height:14%;
+    background:linear-gradient(180deg,rgba(244,213,141,0),rgba(244,213,141,.13),rgba(244,213,141,0));
+    filter:blur(10px);
+  }
+  /* water occupies bottom 42% */
+  .water{
+    position:absolute;left:0;right:0;bottom:0;height:42%;
+    background:linear-gradient(180deg,#2a6b73 0%,#103b43 45%,#08191d 100%);
+    overflow:hidden;
+  }
+  .water::before{ /* sun reflection column */
+    content:"";position:absolute;left:50%;top:0;width:120px;height:100%;
+    transform:translateX(-50%);
+    background:linear-gradient(180deg,rgba(244,213,141,.8),rgba(244,213,141,.05));
+    filter:blur(7px);
+    animation:reflWobble 5s ease-in-out infinite;
+  }
+  @keyframes reflWobble{0%,100%{width:120px;opacity:.8;}50%{width:170px;opacity:.55;}}
+  .shimmer{
+    position:absolute;left:-25%;right:-25%;height:3px;border-radius:50%;
+    background:linear-gradient(90deg,transparent,rgba(247,239,224,.55),transparent);
+    animation:drift linear infinite;
+  }
+  @keyframes drift{from{transform:translateX(-12%);}to{transform:translateX(12%);}}
+  .horizon{
+    position:absolute;left:0;right:0;top:58%;height:2px;
+    background:linear-gradient(90deg,transparent,rgba(247,239,224,.6),transparent);
+    box-shadow:0 0 24px 4px rgba(244,213,141,.35);
+  }
+  /* reeds silhouette */
+  .reeds{position:absolute;bottom:0;width:230px;z-index:2;opacity:.92;}
+  .reeds.left{left:-26px;transform-origin:bottom left;}
+  .reeds.right{right:-26px;transform:scaleX(-1);transform-origin:bottom right;}
+  .reeds path{animation:sway 6s ease-in-out infinite;transform-origin:bottom;}
+  .reeds path:nth-child(2){animation-delay:-1.5s;}
+  .reeds path:nth-child(3){animation-delay:-3s;}
+  .reeds path:nth-child(4){animation-delay:-2.2s;}
+  @keyframes sway{0%,100%{transform:rotate(-2.2deg);}50%{transform:rotate(2.6deg);}}
+
+  .lantern{
+    position:absolute;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,#fff1cf,#e9b04c 55%,rgba(233,176,76,0) 72%);
+    box-shadow:0 0 14px 3px rgba(233,176,76,.5);
+    will-change:transform;pointer-events:none;
+  }
+  .grain{
+    position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .vignette{position:fixed;inset:0;z-index:55;pointer-events:none;
+    box-shadow:inset 0 0 280px 60px rgba(8,25,29,.85);}
+  .cursor-glow{
+    position:fixed;width:520px;height:520px;border-radius:50%;z-index:1;pointer-events:none;
+    margin:-260px 0 0 -260px;
+    background:radial-gradient(circle,rgba(244,213,141,.14),rgba(244,213,141,0) 65%);
+    transition:opacity .4s;
+  }
+
+  /* ---------- layout ---------- */
+  .wrap{position:relative;z-index:10;}
+  header{
+    position:absolute;top:0;left:0;right:0;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:30px clamp(22px,5vw,68px);z-index:20;
+  }
+  .mark{font-family:'Fraunces',serif;font-weight:600;font-size:21px;letter-spacing:.04em;}
+  .mark span{color:var(--gold);}
+  .head-meta{
+    font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--cream-dim);font-weight:500;
+  }
+
+  .hero{
+    min-height:100svh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:84px 22px 54px;
+  }
+  .kicker{
+    display:inline-flex;align-items:center;gap:12px;
+    font-size:12.5px;letter-spacing:.3em;text-transform:uppercase;
+    color:#fff6e4;font-weight:600;margin-bottom:20px;
+    padding:9px 20px;border-radius:100px;
+    background:rgba(8,25,29,.34);
+    border:1px solid rgba(247,239,224,.16);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    text-shadow:0 1px 6px rgba(8,25,29,.7);
+  }
+  .kicker::before,.kicker::after{
+    content:"";width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--gold));
+  }
+  .kicker::after{background:linear-gradient(90deg,var(--gold),transparent);}
+
+  .title{
+    font-family:'Noto Serif Thai',serif;font-weight:700;
+    font-size:clamp(72px,15vw,188px);line-height:.92;
+    letter-spacing:-.01em;
+    text-shadow:0 2px 22px rgba(8,25,29,.6),0 16px 56px rgba(8,25,29,.5);
+  }
+  .title .ch{display:inline-block;will-change:transform;}
+  .title-en{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(20px,3.4vw,38px);letter-spacing:.42em;
+    color:var(--gold);margin-top:14px;padding-left:.42em;
+  }
+  .lede{
+    margin-top:19px;font-size:clamp(15px,1.7vw,19px);font-weight:300;
+    color:var(--cream);max-width:540px;line-height:1.7;
+  }
+
+  .rating{display:flex;align-items:center;gap:13px;margin-top:22px;}
+  .stars{display:flex;gap:5px;}
+  .stars svg{width:25px;height:25px;opacity:0;transform:scale(.3) rotate(-40deg);}
+  .stars svg path{fill:var(--gold);}
+  .rating b{font-family:'Fraunces',serif;font-size:25px;font-weight:600;}
+  .rating em{font-style:normal;font-size:13px;color:var(--cream-dim);letter-spacing:.05em;}
+
+  .card{
+    margin-top:26px;display:flex;flex-wrap:wrap;justify-content:center;
+    gap:0;border-radius:18px;overflow:hidden;
+    background:rgba(247,239,224,.07);
+    border:1px solid rgba(247,239,224,.16);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    box-shadow:0 30px 70px -30px rgba(0,0,0,.7);
+  }
+  .cell{
+    padding:18px 28px;min-width:158px;
+    border-right:1px solid rgba(247,239,224,.12);
+    text-decoration:none;color:inherit;transition:background .3s;
+  }
+  .cell:last-child{border-right:none;}
+  a.cell:hover{background:rgba(247,239,224,.08);}
+  .cell .lab{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+  .cell .val{margin-top:7px;font-size:16px;font-weight:500;color:var(--cream);}
+
+  .cta-row{margin-top:28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;}
+  .btn{
+    position:relative;overflow:hidden;display:inline-block;text-decoration:none;
+    font-family:'IBM Plex Sans Thai',sans-serif;font-weight:600;font-size:15px;
+    padding:17px 38px;border-radius:100px;cursor:pointer;border:none;
+    background:linear-gradient(135deg,#f4d58d,#e9b04c);color:#1a1208;
+    letter-spacing:.02em;
+    box-shadow:0 16px 40px -12px rgba(233,176,76,.7);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;
+  }
+  .btn:hover{transform:translateY(-3px);box-shadow:0 22px 52px -12px rgba(233,176,76,.85);}
+  .btn:focus-visible{outline:2px solid var(--cream);outline-offset:3px;}
+  .btn::after{
+    content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);
+    transform:skewX(-20deg);
+  }
+  .btn:hover::after{animation:sheen .9s ease;}
+  @keyframes sheen{to{left:140%;}}
+  .btn-ghost{
+    background:transparent;border:1px solid rgba(247,239,224,.35);color:var(--cream);
+    box-shadow:none;
+  }
+  .btn-ghost:hover{border-color:var(--gold);box-shadow:none;}
+
+  .scrollcue{
+    margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:10px;
+    font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--cream-dim);
+  }
+  .scrollcue .line{width:1px;height:42px;background:linear-gradient(var(--gold),transparent);overflow:hidden;position:relative;}
+  .scrollcue .line::after{
+    content:"";position:absolute;top:-50%;left:0;width:100%;height:50%;
+    background:var(--cream);animation:fall 1.8s ease-in-out infinite;
+  }
+  @keyframes fall{0%{top:-50%;}60%,100%{top:100%;}}
+
+  /* ---------- highlight sections ---------- */
+  section.block{
+    position:relative;z-index:10;
+    padding:clamp(80px,12vw,150px) clamp(22px,6vw,110px);
+    background:linear-gradient(180deg,rgba(8,25,29,.4),rgba(8,25,29,.92));
+  }
+  .block-tag{
+    font-size:12px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--gold);font-weight:600;margin-bottom:18px;
+  }
+  .block-h{
+    font-family:'Noto Serif Thai',serif;font-weight:600;
+    font-size:clamp(32px,5vw,58px);line-height:1.14;max-width:680px;
+  }
+  .block-h em{font-family:'Fraunces',serif;font-style:italic;color:var(--gold);font-weight:400;}
+
+  .dishes{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:52px;}
+  .dish{
+    position:relative;border-radius:18px;overflow:hidden;
+    min-height:384px;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;
+    border:1px solid rgba(247,239,224,.13);
+    will-change:transform;
+    transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s;
+    box-shadow:0 24px 50px -28px rgba(0,0,0,.8);
+  }
+  .dish:hover{transform:translateY(-10px);box-shadow:0 34px 66px -28px rgba(0,0,0,.92);}
+  .dish .photo{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+    transition:transform .9s cubic-bezier(.2,.8,.2,1);
+  }
+  .dish:hover .photo{transform:scale(1.07);}
+  .dish::after{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(8,25,29,.04) 0%,rgba(8,25,29,.42) 46%,rgba(6,16,20,.93) 100%);
+  }
+  .dish .tag{
+    position:absolute;top:17px;left:17px;z-index:2;
+    font-family:'IBM Plex Sans Thai',sans-serif;font-size:11.5px;font-weight:600;
+    letter-spacing:.04em;color:#1a1208;
+    background:linear-gradient(135deg,#f4d58d,#e9b04c);
+    padding:6px 14px;border-radius:100px;
+    box-shadow:0 8px 20px -8px rgba(0,0,0,.6);
+  }
+  .dish .no{position:relative;z-index:2;font-family:'Fraunces',serif;font-size:13px;color:var(--gold-soft);letter-spacing:.22em;}
+  .dish .nm{position:relative;z-index:2;font-family:'Noto Serif Thai',serif;font-weight:600;font-size:26px;margin-top:6px;
+    text-shadow:0 2px 16px rgba(6,16,20,.85);}
+  .dish .ds{position:relative;z-index:2;font-size:13.5px;font-weight:400;color:var(--cream);opacity:.92;margin-top:9px;line-height:1.6;
+    text-shadow:0 1px 10px rgba(6,16,20,.9);}
+
+  .marquee{margin-top:60px;overflow:hidden;white-space:nowrap;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);}
+  .marquee .run{display:inline-block;animation:slide 38s linear infinite;}
+  .marquee span{
+    font-family:'Fraunces',serif;font-style:italic;font-size:46px;font-weight:300;
+    color:rgba(247,239,224,.18);padding:0 30px;
+  }
+  .marquee span b{color:var(--gold);font-weight:400;}
+  @keyframes slide{to{transform:translateX(-50%);}}
+
+  /* quote */
+  .quote-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .quote{
+    font-family:'Fraunces',serif;font-weight:300;font-style:italic;
+    font-size:clamp(26px,3.6vw,46px);line-height:1.4;max-width:880px;
+  }
+  .quote .w{display:inline;opacity:.12;}
+  .quote-thai{
+    font-family:'Noto Serif Thai',serif;font-weight:400;
+    font-size:clamp(20px,2.6vw,30px);line-height:1.6;max-width:760px;margin-top:6px;
+  }
+  .quote-by{margin-top:28px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);}
+
+  /* closing */
+  .closing{text-align:center;}
+  .closing .big{
+    font-family:'Noto Serif Thai',serif;font-weight:700;
+    font-size:clamp(40px,7vw,96px);line-height:1.05;
+  }
+  .closing .phone{
+    display:inline-block;margin-top:30px;
+    font-family:'Fraunces',serif;font-size:clamp(26px,4vw,46px);
+    color:var(--gold);letter-spacing:.04em;
+  }
+  footer{
+    position:relative;z-index:10;text-align:center;
+    padding:34px 22px 40px;background:#08191d;
+    border-top:1px solid rgba(247,239,224,.08);
+    font-size:12px;color:var(--cream-dim);letter-spacing:.04em;
+  }
+  footer b{color:var(--cream);}
+  footer .credit{margin-top:8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;}
+
+  @media(max-width:1024px){
+    .dishes{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:760px){
+    .dishes{grid-template-columns:1fr;}
+    .cell{border-right:none;border-bottom:1px solid rgba(247,239,224,.12);}
+    .cell:last-child{border-bottom:none;}
+    .head-meta{display:none;}
+  }
+  @media(max-width:600px){
+    .hero{min-height:auto;justify-content:flex-start;padding:108px 20px 70px;}
+    .title-en{display:none;}
+    .scrollcue{display:none;}
+    .rating{flex-wrap:wrap;justify-content:center;}
+  }
+  .reveal{opacity:0;transform:translateY(40px);}
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="sky"></div>
+  <div class="sun"></div>
+  <div class="haze"></div>
+  <div class="horizon"></div>
+  <div class="water" id="water">
+    <svg class="reeds left" viewBox="0 0 230 260" fill="none">
+      <path d="M40 260C40 180 30 110 18 60" stroke="#06141a" stroke-width="9" stroke-linecap="round"/>
+      <path d="M70 260C70 170 78 110 96 52" stroke="#06141a" stroke-width="8" stroke-linecap="round"/>
+      <path d="M104 260C104 190 112 130 130 86" stroke="#08191d" stroke-width="7" stroke-linecap="round"/>
+      <path d="M20 260C22 210 14 170 6 140" stroke="#06141a" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <svg class="reeds right" viewBox="0 0 230 260" fill="none">
+      <path d="M40 260C40 180 30 110 18 60" stroke="#06141a" stroke-width="9" stroke-linecap="round"/>
+      <path d="M70 260C70 170 78 110 96 52" stroke="#06141a" stroke-width="8" stroke-linecap="round"/>
+      <path d="M104 260C104 190 112 130 130 86" stroke="#08191d" stroke-width="7" stroke-linecap="round"/>
+      <path d="M20 260C22 210 14 170 6 140" stroke="#06141a" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+<div class="cursor-glow" id="glow"></div>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<div class="wrap">
+  <header>
+    <div class="mark">ริม<span>เลค</span></div>
+    <div class="head-meta">Est. ริมน้ำ · บางเขน</div>
+  </header>
+
+  <div class="hero">
+    <div class="kicker" id="kicker">ริมทะเลสาบ · ย่านรามอินทรา</div>
+    <h1 class="title" id="title" aria-label="ริมเลค">ริมเลค</h1>
+    <div class="title-en" id="titleEn">RIMLAKE</div>
+    <p class="lede" id="lede">ครัวไทยและอิตาเลียนริมน้ำ ที่ที่สายลมพัดผ่านผิวทะเลสาบ
+       มาพร้อมจานเด่นที่คนแถวนี้ยกให้เป็นร้านลับประจำครอบครัว</p>
+
+    <div class="rating" id="rating">
+      <div class="stars" id="stars"></div>
+      <b>4.9</b><em>· 183 รีวิวบน Google</em>
+    </div>
+
+    <div class="card" id="card">
+      <div class="cell"><div class="lab">เวลาเปิด</div><div class="val">พุธ–อาทิตย์ · 12:00–23:00</div></div>
+      <div class="cell"><div class="lab">ราคาต่อคน</div><div class="val">฿200–400 โดยประมาณ</div></div>
+      <a class="cell" href="tel:0984547495"><div class="lab">โทรจองโต๊ะ</div><div class="val">098 454 7495</div></a>
+      <a class="cell" href="https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B8%B4%E0%B8%A1%E0%B9%80%E0%B8%A5%E0%B8%84%20Rimlake%20%E0%B8%A3%E0%B8%B2%E0%B8%A1%E0%B8%AD%E0%B8%B4%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%B2%205" target="_blank" rel="noopener"><div class="lab">ที่ตั้ง</div><div class="val">ซ.รามอินทรา 5 · บางเขน ↗</div></a>
+    </div>
+
+    <div class="cta-row" id="ctaRow">
+      <a class="btn" href="tel:0984547495">จองโต๊ะริมน้ำ</a>
+      <a class="btn btn-ghost" href="#menu">ดูเมนูทั้งหมด</a>
+    </div>
+
+    <div class="scrollcue" id="cue">
+      <div class="line"></div>
+      เลื่อนเพื่อสำรวจ
+    </div>
+  </div>
+
+  <section class="block" id="menu">
+    <div class="block-tag reveal">เมนูขึ้นชื่อ</div>
+    <h2 class="block-h reveal">สามจานที่ลูกค้า<em>กลับมาสั่งซ้ำ</em>ทุกครั้ง</h2>
+    <div class="dishes">
+      <div class="dish reveal">
+        <img class="photo" src="img/dish1.jpg" alt="วุ้นเส้นโบราณ ริมเลค" loading="lazy"/>
+        <div class="tag">ซิกเนเจอร์</div>
+        <div class="no">01</div>
+        <div class="nm">วุ้นเส้นโบราณ</div>
+        <div class="ds">สูตรเฉพาะของร้าน รสจัดจ้านกลมกล่อม จานที่รีวิวพูดถึงมากที่สุด</div>
+      </div>
+      <div class="dish reveal">
+        <img class="photo" src="img/dish2.jpg" alt="เนื้อย่างจิ้มแจ้ว ริมเลค" loading="lazy"/>
+        <div class="tag">ย่างเตาถ่าน</div>
+        <div class="no">02</div>
+        <div class="nm">เนื้อย่างจิ้มแจ้ว</div>
+        <div class="ds">เนื้อย่างหอมไฟ เสิร์ฟคู่น้ำจิ้มแจ้วสูตรอีสานแท้ ฉ่ำทุกคำ</div>
+      </div>
+      <div class="dish reveal">
+        <img class="photo" src="img/dish3.jpg" alt="พิซซ่าเตาฟืน ริมเลค" loading="lazy"/>
+        <div class="tag">เตาฟืนแท้</div>
+        <div class="no">03</div>
+        <div class="nm">พิซซ่าเตาฟืน</div>
+        <div class="ds">แป้งบางกรอบจากเตาฟืน ฝั่งอิตาเลียนที่ทำให้ร้านนี้ไม่เหมือนใคร</div>
+      </div>
+    </div>
+    <div class="marquee">
+      <div class="run">
+        <span>Thai <b>·</b> Italian <b>·</b> Lakeside <b>·</b> ริมน้ำ <b>·</b> Wood-fired <b>·</b> </span>
+        <span>Thai <b>·</b> Italian <b>·</b> Lakeside <b>·</b> ริมน้ำ <b>·</b> Wood-fired <b>·</b> </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block quote-wrap">
+    <div class="block-tag reveal">เสียงจากลูกค้า</div>
+    <p class="quote" id="quote">A hidden gem with a wonderful breeze across the lake.</p>
+    <p class="quote-thai reveal">บรรยากาศชิลมาก นั่งริมน้ำลมเย็นสบาย เจ้าของกับพนักงานใจดี
+       ยกให้เป็นร้านประจำของครอบครัวเลย</p>
+    <div class="quote-by reveal">— รีวิว 4.9 ดาว จากลูกค้า 183 คน</div>
+  </section>
+
+  <section class="block closing">
+    <div class="big reveal">หิวลมเย็น ๆ<br/>ริมทะเลสาบหรือยัง?</div>
+    <a class="phone reveal" href="tel:0984547495">โทร 098 454 7495</a>
+  </section>
+</div>
+
+<footer>
+  <div><b>ริมเลค Rimlake</b> · ครัวไทย & อิตาเลียน ริมทะเลสาบ · ซ.รามอินทรา 5 บางเขน กรุงเทพฯ</div>
+  <div class="credit">ตัวอย่างเว็บไซต์ ออกแบบโดย tenmakesweb</div>
+</footer>
+
+<script>
+/* ---- floating lanterns ---- */
+const scene=document.querySelector('.scene');
+for(let i=0;i<13;i++){
+  const l=document.createElement('div');
+  l.className='lantern';
+  const s=2+Math.random()*6;
+  l.style.width=s+'px';l.style.height=s+'px';
+  l.style.left=Math.random()*100+'%';
+  l.style.top=(20+Math.random()*55)+'%';
+  l.style.opacity=.2+Math.random()*.42;
+  scene.appendChild(l);
+  gsap.to(l,{
+    y:'-=' + (40+Math.random()*120),
+    x:'+=' + (Math.random()*70-35),
+    duration:8+Math.random()*12,
+    repeat:-1,yoyo:true,ease:'sine.inOut',delay:-Math.random()*10
+  });
+}
+/* ---- water shimmer lines ---- */
+const water=document.getElementById('water');
+for(let i=0;i<7;i++){
+  const sh=document.createElement('div');
+  sh.className='shimmer';
+  sh.style.top=(20+i*11)+'%';
+  sh.style.animationDuration=(3+Math.random()*4)+'s';
+  sh.style.animationDirection=i%2?'alternate':'alternate-reverse';
+  sh.style.opacity=.3+Math.random()*.5;
+  water.appendChild(sh);
+}
+/* ---- split title into chars ---- */
+const title=document.getElementById('title');
+const txt=title.textContent;title.textContent='';
+[...txt].forEach(c=>{
+  const sp=document.createElement('span');
+  sp.className='ch';sp.textContent=c;sp.setAttribute('aria-hidden','true');
+  title.appendChild(sp);
+});
+/* ---- stars ---- */
+const starSVG='<svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z"/></svg>';
+const stars=document.getElementById('stars');
+for(let i=0;i<5;i++)stars.insertAdjacentHTML('beforeend',starSVG);
+
+/* ---- split quote into words ---- */
+const q=document.getElementById('quote');
+const qw=q.textContent.trim().split(' ');q.textContent='';
+qw.forEach(w=>{const s=document.createElement('span');s.className='w';s.textContent=w+' ';q.appendChild(s);});
+
+/* ---- animation (scene stays visible via CSS; JS only choreographs content) ---- */
+gsap.registerPlugin(ScrollTrigger);
+const STILL = location.search.indexOf('still') > -1
+  || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if(STILL){
+  /* deterministic final state — every element fully revealed, no motion gate */
+  gsap.set('#kicker, #titleEn, #lede, #rating b, #rating em, .card, .cell, #ctaRow .btn, #cue',{opacity:1,x:0,y:0});
+  gsap.set('.title .ch',{opacity:1,yPercent:0,rotate:0});
+  gsap.set('.stars svg',{opacity:1,scale:1,rotate:0});
+  gsap.set('.reveal',{opacity:1,y:0});
+  gsap.set('#quote .w',{opacity:1});
+}else{
+  const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+  tl.from('#kicker',{y:24,opacity:0,duration:.8})
+    .from('.title .ch',{yPercent:115,rotate:8,opacity:0,duration:1,stagger:.06,ease:'power4.out'},'-=.3')
+    .from('#titleEn',{y:18,opacity:0,duration:.9},'-=.5')
+    .from('#lede',{y:22,opacity:0,duration:.8},'-=.5')
+    .to('.stars svg',{opacity:1,scale:1,rotate:0,duration:.5,stagger:.1,ease:'back.out(2.5)'},'-=.3')
+    .from('#rating b, #rating em',{opacity:0,y:10,duration:.5},'-=.3')
+    .from('.card',{y:34,opacity:0,duration:.9},'-=.3')
+    .from('.cell',{opacity:0,y:14,duration:.5,stagger:.1},'-=.6')
+    .from('#ctaRow .btn',{y:20,opacity:0,duration:.6,stagger:.12},'-=.4')
+    .from('#cue',{opacity:0,duration:.8},'-=.2');
+
+  /* if the tab is hidden mid-intro, jump to the finished state so nothing is stuck */
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden) tl.progress(1);
+  });
+
+  gsap.to('.sun',{y:-140,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('.reeds',{y:90,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+
+  gsap.utils.toArray('.reveal').forEach(el=>{
+    gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 85%'}});
+  });
+  ScrollTrigger.create({
+    trigger:'#quote',start:'top 78%',
+    onEnter:()=>gsap.to('#quote .w',{opacity:1,duration:.6,stagger:.04,ease:'power1.out'})
+  });
+}
+
+/* ---- cursor glow ---- */
+const glow=document.getElementById('glow');
+if(matchMedia('(pointer:fine)').matches){
+  window.addEventListener('mousemove',e=>{
+    gsap.to(glow,{x:e.clientX,y:e.clientY,duration:.6,ease:'power2.out'});
+  });
+}else{
+  glow.style.display='none';
+}
+</script>
+</body>
+</html>
