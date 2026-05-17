@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ครัวไผ่เขียว — ร้านอาหารไทย ดนตรีสดทุกค่ำ วัชรพล</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=Noto+Serif+Thai:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --bg-deep:#091309;
+    --green:#132c14;
+    --bamboo:#3f6b2c;
+    --amber:#e8a23e;
+    --amber-soft:#f4cf8a;
+    --ember:#ef9a4a;
+    --cream:#f3eede;
+    --cream-dim:#bdbaa0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:var(--bg-deep);color:var(--cream);}
+  body{font-family:'IBM Plex Sans Thai',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--amber);color:var(--bg-deep);}
+
+  /* ---------- ambient bamboo-night scene ---------- */
+  .scene{position:fixed;inset:0;z-index:0;overflow:hidden;}
+  .nightsky{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 80% at 50% 92%, rgba(232,162,62,.6) 0%, rgba(232,162,62,.16) 26%, rgba(19,44,20,.5) 52%, rgba(9,19,9,1) 80%),
+      linear-gradient(180deg,#0d1d10 0%,#13301a 42%,#1a3a1f 70%,#091309 100%);
+  }
+  .glowpool{
+    position:absolute;left:50%;bottom:-8%;width:560px;height:360px;margin-left:-280px;
+    border-radius:50%;
+    background:radial-gradient(circle,#ffcf86 0%,#e8a23e 32%,rgba(232,162,62,0) 70%);
+    filter:blur(8px);animation:pool 8s ease-in-out infinite;
+  }
+  @keyframes pool{0%,100%{transform:scale(1);opacity:.85;}50%{transform:scale(1.09);opacity:1;}}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:30%;
+    background:linear-gradient(180deg,rgba(9,19,9,0),rgba(9,19,9,.78) 60%,#091309 100%);}
+
+  /* bamboo stalks */
+  .bamboo{position:absolute;bottom:0;width:200px;z-index:2;}
+  .bamboo.l{left:-10px;transform-origin:bottom;}
+  .bamboo.r{right:-10px;transform:scaleX(-1);transform-origin:bottom;}
+  .bamboo g{animation:sway 8s ease-in-out infinite;transform-origin:bottom center;}
+  .bamboo g:nth-child(2){animation-delay:-3s;}
+  .bamboo g:nth-child(3){animation-delay:-5s;}
+  @keyframes sway{0%,100%{transform:rotate(-1.6deg);}50%{transform:rotate(1.8deg);}}
+
+  /* hanging lanterns */
+  .lantern{position:absolute;top:0;z-index:3;display:flex;flex-direction:column;align-items:center;}
+  .lantern .str{width:1px;background:linear-gradient(rgba(244,207,138,.5),rgba(244,207,138,.1));}
+  .lantern .orb{
+    width:100%;height:100%;border-radius:46% 46% 50% 50%;
+    background:radial-gradient(circle at 42% 38%,#fff0c8,#e8a23e 58%,#b66f23 90%);
+    box-shadow:0 0 26px 8px rgba(232,162,62,.5);
+  }
+  .lantern .bulb{position:relative;animation:bob 5s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(8px) rotate(3deg);}}
+
+  .mote{position:absolute;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,#fff1cf,#ef9a4a 60%,rgba(239,154,74,0) 74%);
+    box-shadow:0 0 10px 2px rgba(239,154,74,.5);will-change:transform;pointer-events:none;}
+  .vignette{position:fixed;inset:0;z-index:55;pointer-events:none;box-shadow:inset 0 0 280px 70px rgba(9,19,9,.82);}
+  .cursor-glow{position:fixed;width:480px;height:480px;border-radius:50%;z-index:1;pointer-events:none;
+    margin:-240px 0 0 -240px;background:radial-gradient(circle,rgba(232,162,62,.13),rgba(232,162,62,0) 65%);}
+
+  /* ---------- layout ---------- */
+  .wrap{position:relative;z-index:10;}
+  header{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;
+    padding:30px clamp(22px,5vw,68px);z-index:20;}
+  .mark{font-family:'Fraunces',serif;font-weight:600;font-size:20px;letter-spacing:.03em;}
+  .mark span{color:var(--amber);}
+  .head-meta{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--cream-dim);font-weight:500;}
+
+  .hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:96px 22px 56px;}
+  .kicker{display:inline-flex;align-items:center;gap:12px;
+    font-size:12.5px;letter-spacing:.3em;text-transform:uppercase;color:#fff4e0;font-weight:600;
+    margin-bottom:20px;padding:9px 20px;border-radius:100px;
+    background:rgba(9,19,9,.42);border:1px solid rgba(243,238,222,.16);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);text-shadow:0 1px 6px rgba(9,19,9,.7);}
+  .kicker::before,.kicker::after{content:"";width:30px;height:1px;background:linear-gradient(90deg,transparent,var(--amber));}
+  .kicker::after{background:linear-gradient(90deg,var(--amber),transparent);}
+
+  .title{font-family:'Noto Serif Thai',serif;font-weight:700;
+    font-size:clamp(54px,11.5vw,150px);line-height:.96;letter-spacing:-.01em;
+    text-shadow:0 2px 22px rgba(9,19,9,.72),0 16px 56px rgba(9,19,9,.6);}
+  .title .tline{display:block;}
+  .title .ch{display:inline-block;will-change:transform;}
+  .title-en{font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+    font-size:clamp(18px,2.8vw,32px);letter-spacing:.34em;color:var(--amber);margin-top:16px;padding-left:.34em;}
+  .lede{margin-top:19px;font-size:clamp(15px,1.7vw,19px);font-weight:300;color:var(--cream);max-width:550px;line-height:1.7;}
+
+  .rating{display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap;justify-content:center;}
+  .stars{display:flex;gap:5px;}
+  .stars svg{width:24px;height:24px;opacity:0;transform:scale(.3) rotate(-40deg);}
+  .stars svg path{fill:var(--amber);}
+  .rating b{font-family:'Fraunces',serif;font-size:24px;font-weight:600;}
+  .rating em{font-style:normal;font-size:13px;color:var(--cream-dim);letter-spacing:.05em;}
+
+  .card{margin-top:26px;display:flex;flex-wrap:wrap;justify-content:center;border-radius:18px;overflow:hidden;
+    background:rgba(243,238,222,.07);border:1px solid rgba(243,238,222,.16);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 30px 70px -30px rgba(0,0,0,.7);}
+  .cell{padding:18px 26px;min-width:152px;border-right:1px solid rgba(243,238,222,.12);
+    text-decoration:none;color:inherit;transition:background .3s;}
+  .cell:last-child{border-right:none;}
+  a.cell:hover{background:rgba(243,238,222,.08);}
+  .cell .lab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);font-weight:600;}
+  .cell .val{margin-top:7px;font-size:15.5px;font-weight:500;color:var(--cream);}
+
+  .cta-row{margin-top:28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;}
+  .btn{position:relative;overflow:hidden;display:inline-block;text-decoration:none;
+    font-family:'IBM Plex Sans Thai',sans-serif;font-weight:600;font-size:15px;
+    padding:17px 38px;border-radius:100px;cursor:pointer;border:none;
+    background:linear-gradient(135deg,#f4cf8a,#e8a23e);color:#221606;letter-spacing:.02em;
+    box-shadow:0 16px 40px -12px rgba(232,162,62,.65);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;}
+  .btn:hover{transform:translateY(-3px);box-shadow:0 22px 52px -12px rgba(232,162,62,.8);}
+  .btn:focus-visible{outline:2px solid var(--cream);outline-offset:3px;}
+  .btn::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);}
+  .btn:hover::after{animation:sheen .9s ease;}
+  @keyframes sheen{to{left:140%;}}
+  .btn-ghost{background:transparent;border:1px solid rgba(243,238,222,.35);color:var(--cream);box-shadow:none;}
+  .btn-ghost:hover{border-color:var(--amber);box-shadow:none;}
+
+  .scrollcue{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:10px;
+    font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--cream-dim);}
+  .scrollcue .line{width:1px;height:42px;background:linear-gradient(var(--amber),transparent);overflow:hidden;position:relative;}
+  .scrollcue .line::after{content:"";position:absolute;top:-50%;left:0;width:100%;height:50%;
+    background:var(--cream);animation:fall 1.8s ease-in-out infinite;}
+  @keyframes fall{0%{top:-50%;}60%,100%{top:100%;}}
+
+  /* band */
+  .band{position:relative;z-index:10;min-height:90svh;display:flex;align-items:center;
+    padding:clamp(70px,10vw,130px) clamp(22px,7vw,120px);overflow:hidden;}
+  .band .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+  .band::after{content:"";position:absolute;inset:0;z-index:1;
+    background:linear-gradient(100deg,rgba(9,19,9,.93) 0%,rgba(9,19,9,.62) 42%,rgba(9,19,9,.15) 100%);}
+  .band-inner{position:relative;z-index:2;max-width:540px;}
+  .band-tag{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:18px;}
+  .band-h{font-family:'Noto Serif Thai',serif;font-weight:600;font-size:clamp(30px,4.6vw,54px);line-height:1.18;}
+  .band-h em{font-family:'Fraunces',serif;font-style:italic;color:var(--amber);font-weight:400;}
+  .band-p{margin-top:20px;font-size:15.5px;font-weight:300;line-height:1.8;color:var(--cream);}
+  .band-stats{margin-top:30px;display:flex;gap:30px;flex-wrap:wrap;}
+  .band-stats b{font-family:'Fraunces',serif;font-size:32px;color:var(--amber-soft);display:block;}
+  .band-stats span{font-size:12.5px;color:var(--cream-dim);letter-spacing:.04em;}
+
+  /* menu */
+  section.block{position:relative;z-index:10;padding:clamp(80px,12vw,150px) clamp(22px,6vw,110px);
+    background:linear-gradient(180deg,rgba(9,19,9,.55),rgba(9,19,9,.95));}
+  .block-tag{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:18px;}
+  .block-h{font-family:'Noto Serif Thai',serif;font-weight:600;font-size:clamp(32px,5vw,58px);line-height:1.14;max-width:680px;}
+  .block-h em{font-family:'Fraunces',serif;font-style:italic;color:var(--amber);font-weight:400;}
+  .block-sub{margin-top:16px;font-size:15px;font-weight:300;color:var(--cream-dim);max-width:520px;line-height:1.7;}
+
+  .dishes{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:52px;}
+  .dish{position:relative;border-radius:20px;overflow:hidden;min-height:440px;
+    padding:34px;display:flex;flex-direction:column;justify-content:flex-end;
+    border:1px solid rgba(243,238,222,.13);will-change:transform;
+    transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s;box-shadow:0 24px 50px -28px rgba(0,0,0,.8);}
+  .dish:hover{transform:translateY(-10px);box-shadow:0 34px 66px -28px rgba(0,0,0,.92);}
+  .dish .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+    transition:transform .9s cubic-bezier(.2,.8,.2,1);}
+  .dish:hover .photo{transform:scale(1.07);}
+  .dish::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(9,19,9,.05) 0%,rgba(9,19,9,.42) 44%,rgba(7,15,7,.94) 100%);}
+  .dish .tag{position:absolute;top:18px;left:18px;z-index:2;
+    font-family:'IBM Plex Sans Thai',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.04em;
+    color:#221606;background:linear-gradient(135deg,#f4cf8a,#e8a23e);
+    padding:6px 14px;border-radius:100px;box-shadow:0 8px 20px -8px rgba(0,0,0,.6);}
+  .dish .no{position:relative;z-index:2;font-family:'Fraunces',serif;font-size:13px;color:var(--amber-soft);letter-spacing:.22em;}
+  .dish .nm{position:relative;z-index:2;font-family:'Noto Serif Thai',serif;font-weight:600;font-size:30px;margin-top:6px;
+    text-shadow:0 2px 16px rgba(7,15,7,.85);}
+  .dish .ds{position:relative;z-index:2;font-size:14px;font-weight:400;color:var(--cream);opacity:.92;margin-top:10px;line-height:1.6;
+    text-shadow:0 1px 10px rgba(7,15,7,.9);}
+
+  /* quote */
+  .quote-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .quote{font-family:'Fraunces',serif;font-weight:300;font-style:italic;
+    font-size:clamp(25px,3.5vw,44px);line-height:1.42;max-width:880px;}
+  .quote .w{display:inline;opacity:.12;}
+  .quote-thai{font-family:'Noto Serif Thai',serif;font-weight:400;
+    font-size:clamp(19px,2.5vw,29px);line-height:1.6;max-width:740px;margin-top:8px;}
+  .quote-by{margin-top:26px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber);}
+
+  /* closing */
+  .closing{position:relative;z-index:10;min-height:78svh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:clamp(70px,10vw,130px) 22px;overflow:hidden;}
+  .closing .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+  .closing::after{content:"";position:absolute;inset:0;z-index:1;background:rgba(7,15,7,.68);}
+  .closing .inner{position:relative;z-index:2;}
+  .closing .big{font-family:'Noto Serif Thai',serif;font-weight:700;font-size:clamp(38px,6.5vw,88px);line-height:1.08;}
+  .closing .phone{display:inline-block;margin-top:28px;font-family:'Fraunces',serif;
+    font-size:clamp(26px,4vw,46px);color:var(--amber);letter-spacing:.04em;text-decoration:none;}
+
+  footer{position:relative;z-index:10;text-align:center;padding:34px 22px 40px;background:#091309;
+    border-top:1px solid rgba(243,238,222,.08);font-size:12px;color:var(--cream-dim);letter-spacing:.04em;}
+  footer b{color:var(--cream);}
+  footer .credit{margin-top:8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;}
+
+  @media(max-width:1024px){.dishes{grid-template-columns:1fr;}}
+  @media(max-width:760px){
+    .cell{border-right:none;border-bottom:1px solid rgba(243,238,222,.12);}
+    .cell:last-child{border-bottom:none;}
+    .head-meta{display:none;}
+  }
+  @media(max-width:600px){
+    .hero{min-height:auto;justify-content:flex-start;padding:108px 20px 70px;}
+    .title-en{display:none;}.scrollcue{display:none;}
+  }
+  .reveal{opacity:0;transform:translateY(40px);}
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="nightsky"></div>
+  <div class="glowpool"></div>
+  <div class="ground"></div>
+  <svg class="bamboo l" viewBox="0 0 200 520" fill="none">
+    <g><rect x="34" y="40" width="15" height="480" rx="7" fill="#0c1c0d"/>
+       <rect x="32" y="150" width="19" height="7" fill="#16331a"/><rect x="32" y="280" width="19" height="7" fill="#16331a"/><rect x="32" y="410" width="19" height="7" fill="#16331a"/></g>
+    <g><rect x="78" y="0" width="13" height="520" rx="6" fill="#0a170b"/>
+       <rect x="76" y="110" width="17" height="6" fill="#13301a"/><rect x="76" y="250" width="17" height="6" fill="#13301a"/><rect x="76" y="390" width="17" height="6" fill="#13301a"/></g>
+    <g><rect x="116" y="90" width="11" height="430" rx="5" fill="#0c1c0d"/>
+       <rect x="114" y="200" width="15" height="6" fill="#16331a"/><rect x="114" y="340" width="15" height="6" fill="#16331a"/></g>
+  </svg>
+  <svg class="bamboo r" viewBox="0 0 200 520" fill="none">
+    <g><rect x="34" y="40" width="15" height="480" rx="7" fill="#0c1c0d"/>
+       <rect x="32" y="150" width="19" height="7" fill="#16331a"/><rect x="32" y="280" width="19" height="7" fill="#16331a"/><rect x="32" y="410" width="19" height="7" fill="#16331a"/></g>
+    <g><rect x="78" y="0" width="13" height="520" rx="6" fill="#0a170b"/>
+       <rect x="76" y="110" width="17" height="6" fill="#13301a"/><rect x="76" y="250" width="17" height="6" fill="#13301a"/><rect x="76" y="390" width="17" height="6" fill="#13301a"/></g>
+    <g><rect x="116" y="90" width="11" height="430" rx="5" fill="#0c1c0d"/>
+       <rect x="114" y="200" width="15" height="6" fill="#16331a"/><rect x="114" y="340" width="15" height="6" fill="#16331a"/></g>
+  </svg>
+</div>
+<div class="cursor-glow" id="glow"></div>
+<div class="vignette"></div>
+
+<div class="wrap">
+  <header>
+    <div class="mark">ครัว<span>ไผ่เขียว</span></div>
+    <div class="head-meta">ร้านอาหารไทย · วัชรพล</div>
+  </header>
+
+  <div class="hero">
+    <div class="kicker" id="kicker">ดนตรีสดทุกค่ำ · ถนนวัชรพล</div>
+    <h1 class="title" id="title" aria-label="ครัวไผ่เขียว">
+      <span class="tline">ครัว</span><span class="tline">ไผ่เขียว</span>
+    </h1>
+    <div class="title-en" id="titleEn">GREEN BAMBOO KITCHEN</div>
+    <p class="lede" id="lede">ร้านอาหารไทยริมสวนไผ่ เปิดค่ำถึงเที่ยงคืน
+       มีดนตรีสดทุกวัน นั่งชิล จิบเครื่องดื่ม ฟังเพลงเพราะ ๆ ในบรรยากาศร่มรื่น</p>
+
+    <div class="rating" id="rating">
+      <div class="stars" id="stars"></div>
+      <b>4.4</b><em>· 232 รีวิวบน Google</em>
+    </div>
+
+    <div class="card" id="card">
+      <div class="cell"><div class="lab">เวลาเปิด</div><div class="val">ทุกวัน 16:00–00:00 น.</div></div>
+      <div class="cell"><div class="lab">ราคาต่อคน</div><div class="val">฿100–250 โดยประมาณ</div></div>
+      <a class="cell" href="tel:0818422766"><div class="lab">โทรจองโต๊ะ</div><div class="val">081 842 2766</div></a>
+      <a class="cell" href="https://www.google.com/maps/search/?api=1&query=%E0%B8%84%E0%B8%A3%E0%B8%B1%E0%B8%A7%E0%B9%84%E0%B8%9C%E0%B9%88%E0%B9%80%E0%B8%82%E0%B8%B5%E0%B8%A2%E0%B8%A7%20%E0%B8%A7%E0%B8%B1%E0%B8%8A%E0%B8%A3%E0%B8%9E%E0%B8%A5" target="_blank" rel="noopener"><div class="lab">ที่ตั้ง</div><div class="val">91/39 ถ.วัชรพล · บางเขน ↗</div></a>
+    </div>
+
+    <div class="cta-row" id="ctaRow">
+      <a class="btn" href="tel:0818422766">โทรจองโต๊ะ</a>
+      <a class="btn btn-ghost" href="#menu">ดูเมนูแนะนำ</a>
+    </div>
+
+    <div class="scrollcue" id="cue"><div class="line"></div>เลื่อนเพื่อสำรวจ</div>
+  </div>
+
+  <section class="band">
+    <img class="bg" src="img/atmos.jpg" alt="บรรยากาศร้านครัวไผ่เขียว ยามค่ำ มีดนตรีสด" loading="lazy"/>
+    <div class="band-inner">
+      <div class="band-tag reveal">บรรยากาศยามค่ำ</div>
+      <h2 class="band-h reveal">มากินข้าว <em>ฟังดนตรีสด</em> ใต้แสงโคม</h2>
+      <p class="band-p reveal">ทุกค่ำที่ครัวไผ่เขียวมีวงอะคูสติกเล่นเพลงยุค 90 เบา ๆ
+         นั่งยาว ๆ กับเพื่อน จิบเครื่องดื่ม ในสวนไผ่ที่ร่มรื่นและเป็นกันเอง</p>
+      <div class="band-stats">
+        <div class="reveal"><b>4.4★</b><span>จาก 232 รีวิว Google</span></div>
+        <div class="reveal"><b>ทุกค่ำ</b><span>ดนตรีสดอะคูสติก</span></div>
+        <div class="reveal"><b>ฟรี</b><span>ค่าเปิดเหล้า &amp; ไวน์</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="menu">
+    <div class="block-tag reveal">เมนูแนะนำ</div>
+    <h2 class="block-h reveal">สองจานที่<em>เข้ากับวงดนตรี</em></h2>
+    <p class="block-sub reveal">สองจานที่ลูกค้าสั่งคู่เครื่องดื่มบ่อยที่สุด — เมนูเต็มมีให้เลือกอีกหลายสิบจานที่ร้าน</p>
+    <div class="dishes">
+      <div class="dish reveal">
+        <img class="photo" src="img/dish1.jpg" alt="ปลานึ่งมะนาว ครัวไผ่เขียว" loading="lazy"/>
+        <div class="tag">ซิกเนเจอร์</div>
+        <div class="no">01</div>
+        <div class="nm">ปลานึ่งมะนาว</div>
+        <div class="ds">ปลาสดนึ่งร้อน ๆ ราดน้ำมะนาวพริกสด เปรี้ยวแซ่บสมุนไพรหอม — สั่งทุกโต๊ะ</div>
+      </div>
+      <div class="dish reveal">
+        <img class="photo" src="img/dish2.jpg" alt="ยำปลาดุกฟู ครัวไผ่เขียว" loading="lazy"/>
+        <div class="tag">จานเด็ด</div>
+        <div class="no">02</div>
+        <div class="nm">ยำปลาดุกฟู</div>
+        <div class="ds">ปลาดุกฟูกรอบ คลุกยำมะม่วงรสจัดจ้าน กับแกล้มเครื่องดื่มเย็น ๆ เข้ากันสุด</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block quote-wrap">
+    <div class="block-tag reveal">เสียงจากลูกค้า</div>
+    <p class="quote" id="quote">Cosy garden vibe, live music every night, easy on the wallet.</p>
+    <p class="quote-thai reveal">บรรยากาศร่มรื่นดี มีดนตรีสด นั่งชิลได้ยาว ๆ
+       อาหารอร่อย ราคาไม่แรง มีที่จอดรถ — ร้านประจำของแถวนี้</p>
+    <div class="quote-by reveal">— รีวิว 4.4 ดาว จากลูกค้า 232 คนบน Google</div>
+  </section>
+
+  <section class="closing">
+    <img class="bg" src="img/night.jpg" alt="ครัวไผ่เขียว ยามค่ำคืน" loading="lazy"/>
+    <div class="inner">
+      <div class="big reveal">ค่ำนี้<br/>มาฟังเพลงกินข้าวกัน</div>
+      <a class="phone reveal" href="tel:0818422766">โทร 081 842 2766</a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div><b>ครัวไผ่เขียว</b> · ร้านอาหารไทย ดนตรีสดทุกค่ำ · 91/39 ถ.วัชรพล ท่าแร้ง บางเขน กรุงเทพฯ</div>
+  <div class="credit">ตัวอย่างเว็บไซต์ ออกแบบโดย tenmakesweb</div>
+</footer>
+
+<script>
+/* ---- hanging lanterns ---- */
+const scene=document.querySelector('.scene');
+const lpos=[[14,150,30],[30,90,22],[68,120,26],[85,170,20]];
+lpos.forEach(([lx,strlen,sz],i)=>{
+  const l=document.createElement('div');l.className='lantern';
+  l.style.left=lx+'%';
+  l.innerHTML='<div class="str" style="height:'+strlen+'px"></div>'+
+    '<div class="bulb"><div class="orb" style="width:'+sz+'px;height:'+(sz*1.2)+'px"></div></div>';
+  l.querySelector('.bulb').style.animationDelay=(-i*1.3)+'s';
+  scene.appendChild(l);
+});
+/* ---- floating embers ---- */
+for(let i=0;i<8;i++){
+  const m=document.createElement('div');m.className='mote';
+  const s=2+Math.random()*6;
+  m.style.width=s+'px';m.style.height=s+'px';
+  m.style.left=Math.random()*100+'%';m.style.top=(30+Math.random()*55)+'%';
+  m.style.opacity=.2+Math.random()*.45;
+  scene.appendChild(m);
+  gsap.to(m,{y:'-='+(50+Math.random()*130),x:'+='+(Math.random()*70-35),
+    duration:8+Math.random()*12,repeat:-1,yoyo:true,ease:'sine.inOut',delay:-Math.random()*10});
+}
+/* ---- split title ---- */
+document.querySelectorAll('.title .tline').forEach(line=>{
+  const t=line.textContent;line.textContent='';
+  [...t].forEach(c=>{const sp=document.createElement('span');
+    sp.className='ch';sp.textContent=c;sp.setAttribute('aria-hidden','true');line.appendChild(sp);});
+});
+/* ---- stars ---- */
+const starSVG='<svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z"/></svg>';
+const stars=document.getElementById('stars');
+for(let i=0;i<5;i++)stars.insertAdjacentHTML('beforeend',starSVG);
+/* ---- split quote ---- */
+const q=document.getElementById('quote');
+const qw=q.textContent.trim().split(' ');q.textContent='';
+qw.forEach(w=>{const s=document.createElement('span');s.className='w';s.textContent=w+' ';q.appendChild(s);});
+
+/* ---- animation ---- */
+gsap.registerPlugin(ScrollTrigger);
+const STILL = location.search.indexOf('still')>-1
+  || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if(STILL){
+  gsap.set('#kicker, #titleEn, #lede, #rating b, #rating em, .card, .cell, #ctaRow .btn, #cue',{opacity:1,x:0,y:0});
+  gsap.set('.title .ch',{opacity:1,yPercent:0,rotate:0});
+  gsap.set('.stars svg',{opacity:1,scale:1,rotate:0});
+  gsap.set('.reveal',{opacity:1,y:0});
+  gsap.set('#quote .w',{opacity:1});
+}else{
+  const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+  tl.from('#kicker',{y:24,opacity:0,duration:.8})
+    .from('.title .ch',{yPercent:115,rotate:8,opacity:0,duration:1,stagger:.05,ease:'power4.out'},'-=.3')
+    .from('#titleEn',{y:18,opacity:0,duration:.9},'-=.5')
+    .from('#lede',{y:22,opacity:0,duration:.8},'-=.5')
+    .to('.stars svg',{opacity:1,scale:1,rotate:0,duration:.5,stagger:.1,ease:'back.out(2.5)'},'-=.3')
+    .from('#rating b, #rating em',{opacity:0,y:10,duration:.5},'-=.3')
+    .from('.card',{y:34,opacity:0,duration:.9},'-=.3')
+    .from('.cell',{opacity:0,y:14,duration:.5,stagger:.1},'-=.6')
+    .from('#ctaRow .btn',{y:20,opacity:0,duration:.6,stagger:.12},'-=.4')
+    .from('#cue',{opacity:0,duration:.8},'-=.2');
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)tl.progress(1);});
+
+  gsap.to('.glowpool',{y:-90,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('.bamboo',{y:70,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+
+  gsap.utils.toArray('.reveal').forEach(el=>{
+    gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 85%'}});
+  });
+  ScrollTrigger.create({trigger:'#quote',start:'top 78%',
+    onEnter:()=>gsap.to('#quote .w',{opacity:1,duration:.6,stagger:.04,ease:'power1.out'})});
+}
+
+/* ---- cursor glow ---- */
+const glow=document.getElementById('glow');
+if(matchMedia('(pointer:fine)').matches){
+  window.addEventListener('mousemove',e=>{gsap.to(glow,{x:e.clientX,y:e.clientY,duration:.6,ease:'power2.out'});});
+}else{glow.style.display='none';}
+</script>
+</body>
+</html>
